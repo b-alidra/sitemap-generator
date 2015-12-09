@@ -36,7 +36,7 @@ show_help() {
 URL=
 DOMAINS=
 LEVEL=5
-TIMEOUT=
+TIME_OUT=
 OUTPUT="sitemap.xml"
 REJECT=".jpg,.jpeg,.css,.js,.ico,.png,.gif,.swf"
 REJECT_REGEX=
@@ -53,7 +53,7 @@ while true; do
         -d | --domain ) DOMAINS="$2"; shift 2 ;;
         -o | --output ) OUTPUT="$2"; shift 2 ;;
         -l | --level ) LEVEL="$2"; shift 2 ;;
-        -t | --timeoutx ) TIMEOUT="--timeout=$2"; shift 2 ;;
+        -t | --timeout ) TIME_OUT="--timeout=$2"; shift 2 ;;
         -r | --reject ) REJECT="$2"; shift 2 ;;
         -x | --reject-regex ) REJECT_REGEX="--reject-regex=$2"; shift 2 ;;
         --max-redirect ) MAX_REDIRECT="$2"; shift 2 ;;
@@ -78,7 +78,7 @@ SED_LOG_FILE=$OUTPUT.sedlog.txt
 log "URL: $URL"
 log "Domains: $DOMAINS"
 log "Level: $LEVEL"
-log "Timeout: $TIMEOUT"
+log "Timeout: $TIME_OUT"
 log "Rejected suffixes: $REJECT"
 log "Rejected regex: $REJECT_REGEX"
 log "Max redirect: $MAX_REDIRECT"
@@ -87,7 +87,7 @@ log "Frequency: $FREQUENCY"
 log "Priority: $PRIORITY\n"
 
 log "Crawling $URL => $TMP_TXT_FILE ..."
-wget --spider --recursive -l $LEVEL --output-file=$TMP_TXT_FILE --no-http-keep-alive --no-verbose --domains=$DOMAINS --reject=$REJECT --max-redirect=$MAX_REDIRECT $TIMEOUT $REJECT_REGEX $URL
+wget --spider --recursive -l $LEVEL --output-file=$TMP_TXT_FILE --no-http-keep-alive --no-verbose --domains=$DOMAINS --reject=$REJECT --max-redirect=$MAX_REDIRECT $TIME_OUT $REJECT_REGEX $URL
 
 log "Cleaning urls ..."
 sed -n "s@.\+ URL:\([^ ]\+\) .\+@\1@p" $TMP_TXT_FILE | sed "s@&@\&amp;@" > $SED_LOG_FILE
