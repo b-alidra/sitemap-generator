@@ -19,9 +19,12 @@ show_help() {
     echo "Options:"
     echo " -o,  --output       Define output filename. Default: sitemap.xml"
     echo " -d,  --domains      Restrict the crawling to this specific comma separated domains list"
+    echo " -l,  --level        Specify recursion maximum depth level depth. Default 5."
+    echo " -t,  --timeout      Set the network timeout in seconds."
     echo " -r,  --reject       Rejected comma separated list of file name suffixes or patterns."
     echo "                     Default: .jpg,.jpeg,.css,.js,.ico,.png,.gif,.swf"
     echo " -x,  --reject-regex Rejected regular expression of complete URL."
+    echo " --max-redirect      Specifies the maximum number of redirections to follow: Default 20"
     echo " -f,  --frequency    Define URLs frequency. Default: monthly"
     echo "                     See: http://www.sitemaps.org/protocol.html#changefreqdef"
     echo " -p,  --priority     Define the priority for all urls. Default 0.8"
@@ -32,9 +35,12 @@ show_help() {
 
 URL=
 DOMAINS=
+LEVEL=5
+TIMEOUT=
 OUTPUT="sitemap.xml"
 REJECT=".jpg,.jpeg,.css,.js,.ico,.png,.gif,.swf"
 REJECT_REGEX=
+MAX_REDIRECT=20
 FREQUENCY="monthly"
 PRIORITY=0.8
 DATE=`date +%Y-%m-%d`
@@ -46,8 +52,11 @@ while true; do
         -u | --url ) URL="$2"; shift 2 ;;
         -d | --domain ) DOMAINS="$2"; shift 2 ;;
         -o | --output ) OUTPUT="$2"; shift 2 ;;
+        -l | --level ) LEVEL="$2"; shift 2 ;;
+        -t | --timeoutx ) TIMEOUT="--timeout=$2"; shift 2 ;;
         -r | --reject ) REJECT="$2"; shift 2 ;;
         -x | --reject-regex ) REJECT_REGEX="--reject-regex=$2"; shift 2 ;;
+        --max-redirect ) MAX_REDIRECT="$2"; shift 2 ;;
         -f | --frequency ) FREQUENCY="$2"; shift 2 ;;
         -p | --priority ) PRIORITY="$2"; shift 2 ;;
         -h | --help ) show_help; shift 1;;
@@ -68,14 +77,17 @@ SED_LOG_FILE=$OUTPUT.sedlog.txt
 
 log "URL: $URL"
 log "Domains: $DOMAINS"
+log "Level: $LEVEL"
+log "Timeout: $TIMEOUT"
 log "Rejected suffixes: $REJECT"
 log "Rejected regex: $REJECT_REGEX"
+log "Max redirect: $MAX_REDIRECT"
 log "Output: $OUTPUT"
 log "Frequency: $FREQUENCY"
 log "Priority: $PRIORITY\n"
 
 log "Crawling $URL => $TMP_TXT_FILE ..."
-wget --spider --recursive --output-file=$TMP_TXT_FILE --no-http-keep-alive --no-verbose --domains=$DOMAINS --reject=$REJECT $REJECT_REGEX $URL
+wget --spider --recursive -l $LEVEL --output-file=$TMP_TXT_FILE --no-http-keep-alive --no-verbose --domains=$DOMAINS --reject=$REJECT --max-redirect=$MAX_REDIRECT $TIMEOUT $REJECT_REGEX $URL
 
 log "Cleaning urls ..."
 sed -n "s@.\+ URL:\([^ ]\+\) .\+@\1@p" $TMP_TXT_FILE | sed "s@&@\&amp;@" > $SED_LOG_FILE
