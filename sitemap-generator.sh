@@ -97,7 +97,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' > $OUTPUT
 echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> $OUTPUT
 
 log "Generating XML metadata in $OUTPUT ..."
-awk '{print "\t<url><loc>"$0"</loc><lastmod>'$DATE'</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>"}' $SED_LOG_FILE >> $OUTPUT
+awk '{print "\t<url><loc>"$0"</loc><lastmod>'$DATE'</lastmod><changefreq>'$FREQUENCY'</changefreq><priority>'$PRIORITY'</priority></url>"}' $SED_LOG_FILE >> $OUTPUT
 
 echo '</urlset>' >> $OUTPUT
 
