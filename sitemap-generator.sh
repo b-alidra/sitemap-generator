@@ -19,6 +19,7 @@ show_help() {
     echo "Options:"
     echo " -o,  --output     Define output filename. Default: sitemap.xml"
     echo " -d,  --domains    Restrict the crawling to this specific comma separated domains list"
+    echo " -r,  --reject     irejected patterns as a comma separated list. Default: .jpg,.jpeg,.css,.js,.ico,.png,.gif,.swf"
     echo " -f,  --frequency  Define URLs frequency. Default: monthly"
     echo "                   See: http://www.sitemaps.org/protocol.html#changefreqdef"
     echo " -p,  --priority   Define the priority for all urls. Default 0.8"
@@ -30,6 +31,7 @@ show_help() {
 URL=
 DOMAINS=
 OUTPUT="sitemap.xml"
+REJECT=".jpg,.jpeg,.css,.js,.ico,.png,.gif,.swf"
 FREQUENCY="monthly"
 PRIORITY=0.8
 DATE=`date +%Y-%m-%d`
@@ -41,6 +43,7 @@ while true; do
         -u | --url ) URL="$2"; shift 2 ;;
         -d | --domain ) DOMAINS="$2"; shift 2 ;;
         -o | --output ) OUTPUT="$2"; shift 2 ;;
+        -r | --reject ) REJECT="$2"; shift 2 ;;
         -f | --frequency ) FREQUENCY="$2"; shift 2 ;;
         -p | --priority ) PRIORITY="$2"; shift 2 ;;
         -h | --help ) show_help; shift 1;;
@@ -61,12 +64,13 @@ SED_LOG_FILE=$OUTPUT.sedlog.txt
 
 log "URL: $URL"
 log "DOMAINS: $DOMAINS"
+log "REJECTED: $REJECT"
 log "Output: $OUTPUT"
 log "Frequency: $FREQUENCY"
 log "Priority: $PRIORITY\n"
 
 log "Crawling $URL => $TMP_TXT_FILE ..."
-wget --spider --recursive --output-file=$TMP_TXT_FILE --no-http-keep-alive --no-verbose --domains=$DOMAINS --reject=.jpg,.jpeg,.css,.js,.ico,.png,.gif,.swf $URL
+wget --spider --recursive --output-file=$TMP_TXT_FILE --no-http-keep-alive --no-verbose --domains=$DOMAINS --reject=$REJECT $URL
 
 log "Cleaning urls ..."
 sed -n "s@.\+ URL:\([^ ]\+\) .\+@\1@p" $TMP_TXT_FILE | sed "s@&@\&amp;@" > $SED_LOG_FILE
