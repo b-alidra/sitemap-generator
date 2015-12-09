@@ -17,14 +17,16 @@ show_help() {
     echo "Usage: $0 [OPTIONS] url"
     echo ""
     echo "Options:"
-    echo " -o,  --output     Define output filename. Default: sitemap.xml"
-    echo " -d,  --domains    Restrict the crawling to this specific comma separated domains list"
-    echo " -r,  --reject     irejected patterns as a comma separated list. Default: .jpg,.jpeg,.css,.js,.ico,.png,.gif,.swf"
-    echo " -f,  --frequency  Define URLs frequency. Default: monthly"
-    echo "                   See: http://www.sitemaps.org/protocol.html#changefreqdef"
-    echo " -p,  --priority   Define the priority for all urls. Default 0.8"
-    echo "                   See: http://www.sitemaps.org/protocol.html#prioritydef"
-    echo " -h,  --help       See this help"
+    echo " -o,  --output       Define output filename. Default: sitemap.xml"
+    echo " -d,  --domains      Restrict the crawling to this specific comma separated domains list"
+    echo " -r,  --reject       Rejected comma separated list of file name suffixes or patterns."
+    echo "                     Default: .jpg,.jpeg,.css,.js,.ico,.png,.gif,.swf"
+    echo " -x,  --reject-regex Rejected regular expression of complete URL."
+    echo " -f,  --frequency    Define URLs frequency. Default: monthly"
+    echo "                     See: http://www.sitemaps.org/protocol.html#changefreqdef"
+    echo " -p,  --priority     Define the priority for all urls. Default 0.8"
+    echo "                     See: http://www.sitemaps.org/protocol.html#prioritydef"
+    echo " -h,  --help         See this help"
     exit 0
 }
 
@@ -32,6 +34,7 @@ URL=
 DOMAINS=
 OUTPUT="sitemap.xml"
 REJECT=".jpg,.jpeg,.css,.js,.ico,.png,.gif,.swf"
+REJECT_REGEX=
 FREQUENCY="monthly"
 PRIORITY=0.8
 DATE=`date +%Y-%m-%d`
@@ -44,6 +47,7 @@ while true; do
         -d | --domain ) DOMAINS="$2"; shift 2 ;;
         -o | --output ) OUTPUT="$2"; shift 2 ;;
         -r | --reject ) REJECT="$2"; shift 2 ;;
+        -x | --reject-regex ) REJECT_REGEX="--reject-regex=$2"; shift 2 ;;
         -f | --frequency ) FREQUENCY="$2"; shift 2 ;;
         -p | --priority ) PRIORITY="$2"; shift 2 ;;
         -h | --help ) show_help; shift 1;;
@@ -63,14 +67,15 @@ TMP_TXT_FILE=$OUTPUT.txt
 SED_LOG_FILE=$OUTPUT.sedlog.txt
 
 log "URL: $URL"
-log "DOMAINS: $DOMAINS"
-log "REJECTED: $REJECT"
+log "Domains: $DOMAINS"
+log "Rejected suffixes: $REJECT"
+log "Rejected regex: $REJECT_REGEX"
 log "Output: $OUTPUT"
 log "Frequency: $FREQUENCY"
 log "Priority: $PRIORITY\n"
 
 log "Crawling $URL => $TMP_TXT_FILE ..."
-wget --spider --recursive --output-file=$TMP_TXT_FILE --no-http-keep-alive --no-verbose --domains=$DOMAINS --reject=$REJECT $URL
+wget --spider --recursive --output-file=$TMP_TXT_FILE --no-http-keep-alive --no-verbose --domains=$DOMAINS --reject=$REJECT $REJECT_REGEX $URL
 
 log "Cleaning urls ..."
 sed -n "s@.\+ URL:\([^ ]\+\) .\+@\1@p" $TMP_TXT_FILE | sed "s@&@\&amp;@" > $SED_LOG_FILE
